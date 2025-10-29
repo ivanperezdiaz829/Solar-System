@@ -9,7 +9,6 @@ let estrella,
   Planetas = [],
   Lunas = [];
 let t0 = 0;
-// Mantenemos la velocidad lenta
 let accglobal = 0.001;
 let timestamp;
 
@@ -30,7 +29,7 @@ function init() {
   info.innerHTML = "Iván Pérez Díaz - Sistema Solar (Modelo simplificado)";
   document.body.appendChild(info);
 
-  //Defino cámara
+  // --- CÁMARA Y ESCENA ---
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x050510);
   camera = new THREE.PerspectiveCamera(
@@ -51,45 +50,43 @@ function init() {
   // Objeto Sol
   Estrella(4.0, 0xffff66);
 
-  // --- PLANETAS (Radio, Distancia al Sol, Velocidad Orbital, Color, FactorX, FactorY, Inclinación en radianes) ---
+  // --- PLANETAS ---
   const degToRad = (degrees) => degrees * (Math.PI / 180);
 
-  // Los radios han sido aumentados
-  // Mercurio: Inclinación 7.00°
+  // Mercurio
   Planeta(0.3, 8.0, 4.0, 0x909090, 1.05, 0.95, degToRad(7.0));
 
-  // Venus: Inclinación 3.39°
+  // Venus
   Planeta(0.6, 15.0, 2.8, 0xffa500, 1.0, 1.0, degToRad(3.39));
 
-  // Tierra: Inclinación 0.00°
+  // Tierra
   let tierra = Planeta(0.65, 21.0, 2.0, 0x0000ff, 1.0, 1.0, degToRad(0.0));
 
-  // Marte: Inclinación 1.85°
+  // Marte
   Planeta(0.45, 32.0, 1.6, 0xff4500, 1.06, 0.94, degToRad(1.85));
 
-  // Júpiter: Inclinación 1.31°
+  // Júpiter
   Planeta(2.25, 60.0, 0.9, 0xd2b48c, 1.05, 0.95, degToRad(1.31));
 
-  // Saturno: Inclinación 2.49°
+  // Saturno
   Planeta(1.8, 90.0, 0.7, 0xf0e68c, 1.05, 0.95, degToRad(2.49));
 
-  // Urano: Inclinación 0.77°
+  // Urano
   Planeta(1.2, 120.0, 0.5, 0x00ffff, 1.0, 1.0, degToRad(0.77));
 
-  // Neptuno: Inclinación 1.77°
+  // Neptuno
   Planeta(1.05, 150.0, 0.4, 0x4169e1, 1.0, 1.0, degToRad(1.77));
 
-  // Luna de la Tierra: Inclinación 5.14° (respecto a la eclíptica)
+  // Luna de la Tierra
   Luna(tierra, 0.15, 1.0, 6.0, 0xffffff, degToRad(5.14));
 
-  //Inicio tiempo
   t0 = Date.now();
 }
 
 // Función auxiliar para convertir grados a radianes
 const degToRad = (degrees) => degrees * (Math.PI / 180);
 
-// --- Funciones de objetos (sin cambios en su lógica interna de posicionamiento) ---
+// --- FUNCIONES DE OBJETOS ---
 
 function Estrella(rad, col) {
   let geometry = new THREE.SphereGeometry(rad, 32, 32);
@@ -110,7 +107,6 @@ function Planeta(radio, dist, vel, col, f1, f2, incl) {
   Planetas.push(planeta);
 
   let pivoteOrbita = new THREE.Object3D();
-  // Aplicamos la inclinación en el eje Y (lo que inclina el plano XZ)
   pivoteOrbita.rotation.y = incl;
   pivoteOrbita.add(planeta);
   scene.add(pivoteOrbita);
@@ -122,7 +118,6 @@ function Planeta(radio, dist, vel, col, f1, f2, incl) {
   let mate = new THREE.LineBasicMaterial({ color: 0x444444 });
   let orbita = new THREE.Line(geome, mate);
 
-  // Gira la órbita para que esté en el plano XZ (horizontal)
   orbita.rotation.x = Math.PI / 2;
 
   pivoteOrbita.add(orbita);
@@ -132,7 +127,6 @@ function Planeta(radio, dist, vel, col, f1, f2, incl) {
 
 function Luna(planeta, radio, dist, vel, col, angle) {
   var pivote = new THREE.Object3D();
-  // El ángulo de la luna ahora es su inclinación orbital
   pivote.rotation.y = angle;
   planeta.add(pivote);
   var geom = new THREE.SphereGeometry(radio, 10, 10);
@@ -145,13 +139,11 @@ function Luna(planeta, radio, dist, vel, col, angle) {
   pivote.add(luna);
 }
 
-//Bucle de animación
 function animationLoop() {
   timestamp = (Date.now() - t0) * accglobal;
 
   requestAnimationFrame(animationLoop);
 
-  // Posicionamiento de planetas dentro de su pivote (Plano XZ relativo)
   for (let object of Planetas) {
     object.position.x =
       Math.cos(timestamp * object.userData.speed) *
@@ -163,7 +155,6 @@ function animationLoop() {
       object.userData.dist;
   }
 
-  // Posicionamiento de lunas (Plano XZ relativo a su pivote)
   for (let object of Lunas) {
     object.position.x =
       Math.cos(timestamp * object.userData.speed) * object.userData.dist;

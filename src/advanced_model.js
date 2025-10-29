@@ -258,7 +258,7 @@ function init() {
   camcontrols.enableDamping = true;
 
   // Luz ambiental
-  const Lamb = new THREE.AmbientLight(0xffffff, 0.03);
+  const Lamb = new THREE.AmbientLight(0xffffff, 0.02);
   scene.add(Lamb);
 
   // Intensidad de la luz del sol
