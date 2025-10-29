@@ -199,12 +199,31 @@ function updateInfoText() {
   const targetName =
     (target && target.userData && target.userData.name) || "Sol";
 
-  let modeText;
-  if (viewMode === "normal") modeText = "NORMAL (Orbital)";
-  else if (viewMode === "follow") modeText = `SEGUIMIENTO (${targetName})`;
-  else if (viewMode === "free") modeText = "LIBRE (WASD+Ratón)";
+  let modeText = "";
+  let controlsText = ""; // <-- Nueva variable para los controles
 
-  info.innerHTML = `Iván Pérez Díaz - Sistema Solar | Vista: ${modeText} | [F] Seguir / [P] Libre`;
+  // Asignamos el texto del modo Y el texto de los controles
+  switch (viewMode) {
+    case "normal":
+      modeText = "ORBITAL";
+      controlsText =
+        "Click/Arrastrar: Orbitar | Rueda: Zoom | [F] Seguir | [P] Libre";
+      break;
+
+    case "follow":
+      modeText = `SEGUIMIENTO (${targetName})`;
+      controlsText =
+        "Click/Arrastrar: Orbitar | [A/D y/o Flechas]: Cambiar Objetivo | Rueda: Zoom | [F] Volver a orbital | [P] Libre";
+      break;
+
+    case "free":
+      modeText = "LIBRE (WASD+Ratón)";
+      controlsText =
+        "[WASD]: Mover | [Esp/Shift]: Subir/Bajar | Click: Activar Ratón | [F] Seguir | [P] Volver a Orbital";
+      break;
+  }
+
+  info.innerHTML = `Iván Pérez Díaz - Sistema Solar<br><br>Vista: ${modeText} | Controles: ${controlsText}`;
 }
 
 // --- LÓGICA DE INIT Y OBJETOS ---
@@ -275,17 +294,17 @@ function init() {
       name: "Mercurio",
       radio: 0.3,
       dist: 75.0, // <-- CAMBIO: Más lejos
-      vel: 3.0 * 0.1, // <-- CAMBIO: Velocidad reducida
+      vel: 0.12, // <-- CAMBIO: Velocidad reducida
       f1: 1.05,
       f2: 0.95,
-      incl: degToRad(-10.0),
+      incl: degToRad(-5.0),
       texture: TEXTURAS_PLANETAS["mercurio"],
     },
     {
       name: "Venus",
       radio: 0.6,
       dist: 90.0, // <-- CAMBIO: Más lejos
-      vel: 2.8 * 0.1, // <-- CAMBIO: Velocidad reducida
+      vel: 0.11, // <-- CAMBIO: Velocidad reducida
       f1: 1.0,
       f2: 1.0,
       incl: degToRad(5.0),
@@ -308,7 +327,7 @@ function init() {
   // 3. Crear la Tierra (inclinación 0 por ser la referencia)
   const TIERRA_RADIO = 0.65;
   const TIERRA_DIST = 110.0; // <-- CAMBIO: Más lejos
-  const TIERRA_VEL = 1.6 * 0.1; // <-- CAMBIO: Velocidad reducida
+  const TIERRA_VEL = 0.1; // <-- CAMBIO: Velocidad reducida
   const TIERRA_INCL = degToRad(0.0); // <-- Referencia
   let tierra_pivote = PivoteOrbital(
     TIERRA_DIST,
@@ -365,7 +384,7 @@ function init() {
       name: "Marte",
       radio: 0.45,
       dist: 130.0, // <-- CAMBIO: Más lejos
-      vel: 1.6 * 0.1, // <-- CAMBIO: Velocidad reducida
+      vel: 0.09, // <-- CAMBIO: Velocidad reducida
       f1: 1.06,
       f2: 0.94,
       incl: degToRad(3.0),
@@ -375,7 +394,7 @@ function init() {
       name: "Júpiter",
       radio: 2.25,
       dist: 150.0, // <-- CAMBIO: Más lejos
-      vel: 0.9 * 0.1, // <-- CAMBIO: Velocidad reducida
+      vel: 0.08, // <-- CAMBIO: Velocidad reducida
       f1: 1.05,
       f2: 0.95,
       incl: degToRad(2.0),
@@ -386,7 +405,7 @@ function init() {
       name: "Saturno",
       radio: 1.8,
       dist: 170.0, // <-- CAMBIO: Más lejos que Júpiter
-      vel: 0.7 * 0.1, // <-- CAMBIO: Velocidad reducida
+      vel: 0.07, // <-- CAMBIO: Velocidad reducida
       f1: 1.05,
       f2: 0.95,
       incl: degToRad(-4.0),
@@ -396,17 +415,17 @@ function init() {
       name: "Urano",
       radio: -1.2,
       dist: 190.0, // <-- CAMBIO: Más lejos que Saturno
-      vel: 0.5 * 0.1, // <-- CAMBIO: Velocidad reducida
+      vel: 0.05, // <-- CAMBIO: Velocidad reducida
       f1: 1.0,
       f2: 1.0,
-      incl: degToRad(-6),
+      incl: degToRad(6),
       texture: TEXTURAS_PLANETAS["urano"],
     },
     {
       name: "Neptuno",
       radio: 1.05,
       dist: 210.0, // <-- CAMBIO: Más lejos que Urano
-      vel: 0.4 * 0.1, // <-- CAMBIO: Velocidad reducida
+      vel: 0.04, // <-- CAMBIO: Velocidad reducida
       f1: 1.0,
       f2: 1.0,
       incl: degToRad(0.0),
@@ -775,7 +794,7 @@ function animationLoop() {
     camcontrols.update();
   } else if (viewMode === "free") {
     // Lógica de Movimiento Libre (WASD) - SIN CAMBIOS
-    const delta = 1 / 60;
+    const delta = 0.007;
     velocity.x = 0;
     velocity.y = 0;
     velocity.z = 0;
