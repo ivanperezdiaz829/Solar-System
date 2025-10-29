@@ -8,7 +8,7 @@ let camcontrols;
 let estrella,
   Planetas = [],
   Lunas = [];
-let objetos = []; // Usado para objetos con rotación propia (planetas texturizados, nubes)
+let objetos = [];
 let t0 = 0;
 let accglobal = 0.001;
 let timestamp;
@@ -16,7 +16,7 @@ let timestamp;
 // --- VARIABLES DE CONTROL DE CÁMARA ---
 let viewMode = "normal"; // Estado: 'normal', 'follow', 'free'
 let followTargetIndex = 0;
-let currentFollowTargetIndex = -1; // <-- ¡AÑADE ESTA LÍNEA!
+let currentFollowTargetIndex = -1;
 let followableObjects = []; // Contiene todos los objetos que pueden ser seguidos
 const FOLLOW_DISTANCE = 7; // Distancia base, se ajusta para el sol
 
@@ -25,11 +25,10 @@ let keyState = {}; // Para rastrear qué teclas están pulsadas
 const velocity = new THREE.Vector3(); // Velocidad de movimiento
 const MOVE_SPEED = 20; // Velocidad de desplazamiento
 const MOUSE_SENSITIVITY = 0.002; // Sensibilidad del ratón
-let euler = new THREE.Euler(0, 0, 0, "YXZ"); // Objeto para gestionar rotación de la cámara (Yaw, Pitch)
+let euler = new THREE.Euler(0, 0, 0, "YXZ"); // Objeto para gestionar rotación de la cámara
 
-// --- Texturas a Cargar ---
+// --- TEXTURAS A CARGAR ---
 const loader = new THREE.TextureLoader();
-// Texturas de la Tierra (ya estaban)
 const EARTH_MAP = loader.load("./Textures/planeta.jpg");
 const EARTH_BUMP = loader.load("./Textures/earthbump1k.jpg");
 const EARTH_SPEC = loader.load("./Textures/earthspec1k.jpg");
@@ -48,22 +47,22 @@ const TEXTURAS_PLANETAS = {
   neptuno: loader.load("./Textures/neptunoMapa.jpg"),
 };
 
+// Anillo de saturno
 const TEXTURAS_EXTRAS = {
   anillosSaturno: loader.load("./Textures/Saturn_Rings.png"),
 };
 
-// Carga de la textura del fondo
+// Fondo
 const MILKYWAY_BACKGROUND = loader.load("./Textures/space2.jpg");
 
 // Variable para almacenar referencias a los planetas por nombre
 const planetMeshes = {};
 
 init();
-setupFreeControl(); // Configuración de eventos de ratón y teclado
+setupFreeControl();
 animationLoop();
 
-// --- 1. CONFIGURACIÓN DE EVENTOS DE CONTROL LIBRE ---
-
+// --- CONFIGURACIÓN DE EVENTOS DE CONTROL LIBRE ---
 function setupFreeControl() {
   window.addEventListener("keydown", handleKeyDown, false);
   window.addEventListener("keyup", handleKeyUp, false);
@@ -87,7 +86,6 @@ function onPointerLockChange() {
   if (document.pointerLockElement === renderer.domElement) {
     console.log("Control del ratón activado (Pointer Lock)");
   } else {
-    // Si el usuario presiona ESC, volvemos a 'follow' o 'normal'
     if (viewMode === "free") {
       setViewMode("normal");
     }
@@ -111,8 +109,7 @@ function handleKeyDown(event) {
     if (viewMode === "free") setViewMode("normal");
     else setViewMode("free");
   }
-
-  // Teclas de navegación A/D (solo para modo follow)
+  // Navegación entre objetivos en modo follow
   if (viewMode === "follow" && followableObjects.length > 0) {
     if (key === "arrowright" || key === "d") {
       followTargetIndex = (followTargetIndex + 1) % followableObjects.length;
@@ -147,7 +144,7 @@ function handleMouseMove(event) {
   euler.y -= movementX * MOUSE_SENSITIVITY;
   euler.x -= movementY * MOUSE_SENSITIVITY;
 
-  // Limitar la rotación vertical (Pitch) a 180 grados
+  // Limitar la rotación vertical
   euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
 
   camera.quaternion.setFromEuler(euler);
@@ -172,22 +169,15 @@ function setViewMode(newMode) {
     // --- MODO NORMAL o SEGUIMIENTO ---
     document.exitPointerLock();
     keyState = {};
-
-    // ¡CAMBIO CLAVE! Habilitamos controles para AMBOS modos
     camcontrols.enabled = true;
 
     if (newMode === "normal") {
-      // Al volver a normal, apuntamos al Sol (origen)
       camcontrols.target.set(0, 0, 0);
-      // Si venimos de modo libre, reposicionamos la cámara
       if (viewMode === "free") {
-        camera.position.set(0, 50, 100);
+        camera.position.set(0, 50, 200);
       }
-      // Invalidamos el índice para forzar el "salto" si volvemos a seguir
       currentFollowTargetIndex = -1;
     }
-    // Si newMode es "follow", no hacemos nada especial aquí.
-    // El "animationLoop" detectará el cambio y moverá la cámara.
   }
 
   viewMode = newMode;
@@ -200,9 +190,9 @@ function updateInfoText() {
     (target && target.userData && target.userData.name) || "Sol";
 
   let modeText = "";
-  let controlsText = ""; // <-- Nueva variable para los controles
+  let controlsText = "";
 
-  // Asignamos el texto del modo Y el texto de los controles
+  // --- INFORMACIÓN EN PANTALLA ---
   switch (viewMode) {
     case "normal":
       modeText = "ORBITAL";
@@ -227,7 +217,6 @@ function updateInfoText() {
 }
 
 // --- LÓGICA DE INIT Y OBJETOS ---
-
 function init() {
   info = document.createElement("div");
   info.style.position = "absolute";
@@ -242,13 +231,11 @@ function init() {
   document.body.appendChild(info);
 
   scene = new THREE.Scene();
-
-  // Crear una esfera gigante (Skysphere) en lugar de scene.background
-  const skyGeometry = new THREE.SphereGeometry(48000, 64, 64); // Radio 800
+  const skyGeometry = new THREE.SphereGeometry(48000, 64, 64);
   const skyMaterial = new THREE.MeshBasicMaterial({
     map: MILKYWAY_BACKGROUND,
     side: THREE.BackSide, // Para que la textura se vea por dentro
-    color: 0x505050, // Color gris (50% de brillo) para atenuar la textura
+    color: 0x505050,
   });
   const skysphere = new THREE.Mesh(skyGeometry, skyMaterial);
   scene.add(skysphere);
@@ -257,44 +244,40 @@ function init() {
     75,
     window.innerWidth / window.innerHeight,
     0.1,
-    60000 // <-- AUMENTADO (para que quepa la skysphere de 1600)
+    60000
   );
-  camera.position.set(0, 80, 200);
+  camera.position.set(0, 50, 200);
 
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
-  // Añadimos el tipo de sombra para que sean más suaves
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   document.body.appendChild(renderer.domElement);
 
   camcontrols = new OrbitControls(camera, renderer.domElement);
   camcontrols.enableDamping = true;
 
-  // Luz ambiental baja para sombras oscuras (lado oscuro)
-  const Lamb = new THREE.AmbientLight(0xffffff, 0.05);
+  // Luz ambiental
+  const Lamb = new THREE.AmbientLight(0xffffff, 0.03);
   scene.add(Lamb);
 
-  // Intensidad de la luz del sol aumentada
-  const Lpoint = new THREE.PointLight(0xffffff, 14000.0, 30000); // Intensidad 4.0
-  Lpoint.position.set(0, 0, 0); // En el centro (el Sol)
+  // Intensidad de la luz del sol
+  const Lpoint = new THREE.PointLight(0xffffff, 20000.0, 35000);
+  Lpoint.position.set(0, 0, 0); // En el centro (sol)
   Lpoint.castShadow = true;
   scene.add(Lpoint);
 
   const degToRad = (degrees) => degrees * (Math.PI / 180);
 
-  // --- Reorganizar la creación para seguir el orden del Sistema Solar ---
-
-  // 1. Crear el Sol (se añade a followableObjects dentro de Estrella)
+  // --- CREACIÓN DE OBJETOS DEL SISTEMA SOLAR ---
   Estrella(60, 0xffff66, "Sol", SUN_MAP);
 
-  // 2. Crear Mercurio y Venus con inclinaciones y distancias/velocidades ajustadas
-  const planetasInteriores = [
+  const planetasData = [
     {
       name: "Mercurio",
       radio: 0.3,
-      dist: 75.0, // <-- CAMBIO: Más lejos
-      vel: 0.12, // <-- CAMBIO: Velocidad reducida
+      dist: 75.0,
+      vel: 0.12,
       f1: 1.05,
       f2: 0.95,
       incl: degToRad(-5.0),
@@ -303,88 +286,30 @@ function init() {
     {
       name: "Venus",
       radio: 0.6,
-      dist: 90.0, // <-- CAMBIO: Más lejos
-      vel: 0.11, // <-- CAMBIO: Velocidad reducida
+      dist: 90.0,
+      vel: 0.11,
       f1: 1.0,
       f2: 1.0,
       incl: degToRad(5.0),
       texture: TEXTURAS_PLANETAS["venus"],
     },
-  ];
-  planetasInteriores.forEach((data) =>
-    CrearPlanetaTexturizado(
-      data.radio,
-      data.dist,
-      data.vel,
-      data.f1,
-      data.f2,
-      data.incl,
-      data.name,
-      data.texture
-    )
-  );
-
-  // 3. Crear la Tierra (inclinación 0 por ser la referencia)
-  const TIERRA_RADIO = 0.65;
-  const TIERRA_DIST = 110.0; // <-- CAMBIO: Más lejos
-  const TIERRA_VEL = 0.1; // <-- CAMBIO: Velocidad reducida
-  const TIERRA_INCL = degToRad(0.0); // <-- Referencia
-  let tierra_pivote = PivoteOrbital(
-    TIERRA_DIST,
-    TIERRA_VEL,
-    1.0,
-    1.0,
-    TIERRA_INCL
-  );
-  let tierra_mesh = PlanetaTexturizado(
-    tierra_pivote,
-    0,
-    0,
-    0,
-    TIERRA_RADIO,
-    40,
-    40,
-    0xffffff,
-    EARTH_MAP,
-    EARTH_BUMP,
-    EARTH_SPEC,
-    undefined,
-    true
-  );
-  tierra_mesh.userData.dist = TIERRA_DIST;
-  tierra_mesh.userData.speed = TIERRA_VEL;
-  tierra_mesh.userData.f1 = 1.0;
-  tierra_mesh.userData.f2 = 1.0;
-  tierra_mesh.userData.name = "Tierra";
-  Planetas.push(tierra_mesh);
-  followableObjects.push(tierra_mesh); // <-- Tierra añadida en orden
-  planetMeshes["Tierra"] = tierra_mesh; // Guardar referencia
-
-  // Nubes y Luna de la Tierra (con inclinación lunar más notoria)
-  PlanetaTexturizado(
-    tierra_mesh,
-    0.0,
-    0.0,
-    0.0,
-    TIERRA_RADIO * 1.03,
-    40,
-    40,
-    0xffffff,
-    CLOUD_MAP,
-    undefined,
-    undefined,
-    CLOUD_ALPHA,
-    false
-  );
-  Luna(tierra_mesh, 0.12, 1.5, 4.0, 0xffffff, degToRad(10.0), "Luna");
-
-  // 4. Crear el resto de planetas con inclinaciones y distancias/velocidades ajustadas
-  const planetasExteriores = [
+    {
+      name: "Tierra",
+      radio: 0.65,
+      dist: 110.0,
+      vel: 0.1,
+      f1: 1.0,
+      f2: 1.0,
+      incl: degToRad(0.0),
+      texture: EARTH_MAP,
+      texbump: EARTH_BUMP,
+      texspec: EARTH_SPEC,
+    },
     {
       name: "Marte",
       radio: 0.45,
-      dist: 130.0, // <-- CAMBIO: Más lejos
-      vel: 0.09, // <-- CAMBIO: Velocidad reducida
+      dist: 130.0,
+      vel: 0.09,
       f1: 1.06,
       f2: 0.94,
       incl: degToRad(3.0),
@@ -393,19 +318,18 @@ function init() {
     {
       name: "Júpiter",
       radio: 2.25,
-      dist: 150.0, // <-- CAMBIO: Más lejos
-      vel: 0.08, // <-- CAMBIO: Velocidad reducida
+      dist: 150.0,
+      vel: 0.08,
       f1: 1.05,
       f2: 0.95,
       incl: degToRad(2.0),
       texture: TEXTURAS_PLANETAS["jupiter"],
     },
     {
-      // Saturno, Urano y Neptuno mantienen distancias pero reducen velocidad
       name: "Saturno",
       radio: 1.8,
-      dist: 170.0, // <-- CAMBIO: Más lejos que Júpiter
-      vel: 0.07, // <-- CAMBIO: Velocidad reducida
+      dist: 170.0,
+      vel: 0.07,
       f1: 1.05,
       f2: 0.95,
       incl: degToRad(-4.0),
@@ -413,9 +337,9 @@ function init() {
     },
     {
       name: "Urano",
-      radio: -1.2,
-      dist: 190.0, // <-- CAMBIO: Más lejos que Saturno
-      vel: 0.05, // <-- CAMBIO: Velocidad reducida
+      radio: 1.2,
+      dist: 190.0,
+      vel: 0.05,
       f1: 1.0,
       f2: 1.0,
       incl: degToRad(6),
@@ -424,15 +348,16 @@ function init() {
     {
       name: "Neptuno",
       radio: 1.05,
-      dist: 210.0, // <-- CAMBIO: Más lejos que Urano
-      vel: 0.04, // <-- CAMBIO: Velocidad reducida
+      dist: 210.0,
+      vel: 0.04,
       f1: 1.0,
       f2: 1.0,
       incl: degToRad(0.0),
       texture: TEXTURAS_PLANETAS["neptuno"],
     },
   ];
-  planetasExteriores.forEach((data) =>
+
+  planetasData.forEach((data) =>
     CrearPlanetaTexturizado(
       data.radio,
       data.dist,
@@ -441,12 +366,35 @@ function init() {
       data.f2,
       data.incl,
       data.name,
-      data.texture
+      data.texture,
+      data.texbump, // Si no tiene nada se pasa undefined
+      data.texspec // Si no tiene nada se pasa undefined
     )
   );
 
-  // --- Añadir Lunas a los planetas correspondientes (con inclinaciones más notorias) ---
-  // Marte
+  const TIERRA_RADIO = 0.65;
+  let tierra_mesh = planetMeshes["Tierra"];
+
+  if (tierra_mesh) {
+    PlanetaTexturizado(
+      tierra_mesh,
+      0.0,
+      0.0,
+      0.0,
+      TIERRA_RADIO * 1.03,
+      40,
+      40,
+      0xffffff,
+      CLOUD_MAP,
+      undefined,
+      undefined,
+      CLOUD_ALPHA,
+      false
+    );
+    Luna(tierra_mesh, 0.12, 1.5, 4.0, 0xffffff, degToRad(10.0), "Luna");
+  }
+
+  // --- AÑADIR LUNAS A PLANETAS
   let marte_mesh = planetMeshes["Marte"];
   if (marte_mesh) {
     Luna(marte_mesh, 0.1, 0.8, 3.0, 0xaaaaaa, degToRad(10), "Fobos");
@@ -469,22 +417,21 @@ function init() {
     Luna(saturno_mesh, 0.15, 5.0, 2.4, 0xcccccc, degToRad(1.0), "Rea");
 
     const radioPlaneta = saturno_mesh.geometry.parameters.radius;
-    const radioInterior = radioPlaneta + 0.8; // Un pequeño espacio (1.8 + 0.4 = 2.2)
-    const radioExterior = radioPlaneta + 1.5; // Ancho de los anillos (1.8 + 2.0 = 3.8)
+    const radioInterior = radioPlaneta + 0.8;
+    const radioExterior = radioPlaneta + 1.5;
 
     const ringGeometry = new THREE.RingGeometry(
-      radioInterior, // Radio interno
-      radioExterior, // Radio externo
-      64 // Segmentos (para que sea circular)
+      radioInterior,
+      radioExterior,
+      64
     );
 
-    // Asegúrate de haber cargado la textura en TEXTURAS_EXTRAS
     const ringMaterial = new THREE.MeshPhongMaterial({
       map: TEXTURAS_EXTRAS.saturno_anillo,
-      side: THREE.DoubleSide, // Importante: Para que el anillo se vea por arriba y por abajo
-      transparent: true, // Habilita la transparencia del PNG
-      opacity: 0.9, // Una ligera opacidad general (opcional)
-      receiveShadow: true, // El anillo recibe la sombra del planeta
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.9,
+      receiveShadow: true,
     });
 
     const ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
@@ -515,34 +462,12 @@ function init() {
   updateInfoText(); // Llamada inicial para mostrar el estado.
 }
 
-// --- NUEVA FUNCIÓN AUXILIAR PARA CREAR PLANETAS TEXTURIZADOS ---
-function CrearPlanetaTexturizado(
-  radio,
-  dist,
-  vel,
-  f1,
-  f2,
-  incl,
-  name,
-  texture
-) {
+// --- FUNCIÓN PARA CREAR LOS PLANETAS CON TEXTURAS ---
+function CrearPlanetaTexturizado(radio, dist, vel, f1, f2, incl, name, texture, texbump = undefined, texspec = undefined) {
+
   let pivoteOrbita = PivoteOrbital(dist, vel, f1, f2, incl);
 
-  let planeta_mesh = PlanetaTexturizado(
-    pivoteOrbita,
-    0,
-    0,
-    0,
-    radio,
-    40,
-    40,
-    0xffffff,
-    texture,
-    undefined,
-    undefined,
-    undefined,
-    true // Sombra activada
-  );
+  let planeta_mesh = PlanetaTexturizado(pivoteOrbita, 0, 0, 0, radio ,40, 40, 0xffffff, texture, texbump, texspec, undefined, true);
 
   planeta_mesh.userData.dist = dist;
   planeta_mesh.userData.speed = vel;
@@ -580,7 +505,7 @@ function Estrella(rad, col, name, texture = undefined) {
   let materialOptions = {};
   if (texture) {
     materialOptions.map = texture;
-    materialOptions.color = 0xffffff; // Tono blanco para máximo brillo
+    materialOptions.color = 0xffffff;
   } else {
     materialOptions.color = col;
   }
@@ -589,30 +514,10 @@ function Estrella(rad, col, name, texture = undefined) {
 
   estrella = new THREE.Mesh(geometry, material);
   estrella.userData.name = name;
-  // followableObjects.push(estrella); // <-- Sol añadido primero a la lista
   scene.add(estrella);
 }
 
-// Esta función Planeta ya no se usa directamente
-function Planeta(radio, dist, vel, col, f1, f2, incl, name) {
-  // ... (código sin cambios)
-}
-
-function PlanetaTexturizado(
-  padre,
-  px,
-  py,
-  pz,
-  radio,
-  nx,
-  ny,
-  col,
-  texture = undefined,
-  texbump = undefined,
-  texspec = undefined,
-  texalpha = undefined,
-  sombra = false
-) {
+function PlanetaTexturizado(padre, px, py, pz, radio, nx, ny, col, texture = undefined, texbump = undefined, texspec = undefined, texalpha = undefined, sombra = false) {
   let geometry = new THREE.SphereGeometry(radio, nx, ny);
 
   let material = new THREE.MeshPhongMaterial({
@@ -648,8 +553,6 @@ function PlanetaTexturizado(
   mesh.position.set(px, py, pz);
   padre.add(mesh);
 
-  // Añadimos el mesh a 'objetos' solo si es un planeta principal o las nubes de la Tierra
-  // Esto es para que solo estos roten, no los pivotes
   if (
     (padre.parent === scene && padre !== estrella) ||
     padre.userData.name === "Tierra"
@@ -665,44 +568,27 @@ function Luna(planeta, radio, dist, vel, col, angle, name) {
   pivote.rotation.z = angle;
   planeta.add(pivote);
 
-  // ==================================================
-  // --- 🛰️ AÑADIR ÓRBITA DE LA LUNA ---
-  // ==================================================
-
-  // 1. Crear la curva (un círculo simple, usando EllipseCurve)
   let curve = new THREE.EllipseCurve(
     0,
-    0, // Centro
-    dist,
-    dist, // dist es el radio en x e y (es un círculo)
     0,
-    2 * Math.PI, // Ángulo completo
+    dist,
+    dist,
+    0,
+    2 * Math.PI,
     false,
     0
   );
 
-  // 2. Obtener puntos de la curva
-  let points = curve.getPoints(50); // 50 puntos es suficiente
+  let points = curve.getPoints(100);
   let geome = new THREE.BufferGeometry().setFromPoints(points);
 
-  // 3. Crear el material (¡"muy clarito"!)
-  // Usamos 0x333333, que es un gris más oscuro/tenue que el 0x444444 de los planetas
-  // Si lo quieres AÚN más clarito (casi invisible), prueba 0x222222
+  // Tono de órbita
   let mate = new THREE.LineBasicMaterial({ color: 0x333333 });
 
-  // 4. Crear la línea
+  // Crear órbita
   let orbita = new THREE.Line(geome, mate);
-
-  // 5. Rotar la órbita para que esté en el plano XZ (como la de los planetas)
   orbita.rotation.x = Math.PI / 2;
-
-  // 6. Añadir la órbita al pivote
-  // (Esto es importante para que la órbita también se incline con el 'angle')
   pivote.add(orbita);
-
-  // ==================================================
-  // --- FIN DE LA ÓRBITA ---
-  // ==================================================
 
   var geom = new THREE.SphereGeometry(radio, 10, 10);
   var mat = new THREE.MeshPhongMaterial({ color: col });
@@ -717,7 +603,6 @@ function Luna(planeta, radio, dist, vel, col, angle, name) {
 
   Lunas.push(luna);
 
-  // Añadimos la luna al mismo pivote
   pivote.add(luna);
 }
 
@@ -725,25 +610,19 @@ function animationLoop() {
   timestamp = (Date.now() - t0) * accglobal;
   requestAnimationFrame(animationLoop);
 
-  // ======================================================
-  // --- 1. LÓGICA DE CÁMARA (VERSIÓN CORREGIDA) ---
-  // ======================================================
-
+  // --- LÓGICA DE CONTROL DE CÁMARA ---
   if (viewMode === "normal") {
-    // Modo normal: el target es (0,0,0)
     camcontrols.update();
   } else if (viewMode === "follow") {
     const target = followableObjects[followTargetIndex];
 
     if (target) {
-      // Obtenemos la NUEVA posición del planeta en este fotograma
       const newTargetPosition = new THREE.Vector3();
       target.getWorldPosition(newTargetPosition);
 
-      // Detectar si el objetivo ha cambiado (teclas A/D)
       if (followTargetIndex !== currentFollowTargetIndex) {
-        // --- 1. SALTO A UN NUEVO OBJETIVO ---
-        currentFollowTargetIndex = followTargetIndex; // Actualizar el índice
+        // --- SALTO A UN NUEVO OBJETIVO ---
+        currentFollowTargetIndex = followTargetIndex;
 
         // Calcular offset inicial (horizontal, a FOLLOW_DISTANCE)
         let cameraOffset;
@@ -753,7 +632,6 @@ function animationLoop() {
           cameraOffset = new THREE.Vector3(0, 0, FOLLOW_DISTANCE);
         }
 
-        // (Aplicamos la rotación del pivote del planeta)
         let followRotation = new THREE.Object3D();
         if (
           target.parent &&
@@ -772,28 +650,23 @@ function animationLoop() {
         // Apuntamos los controles al objetivo
         camcontrols.target.copy(newTargetPosition);
       } else {
-        // --- 2. SEGUIMIENTO CONTINUO (¡LA LÓGICA CLAVE!) ---
-
-        // Obtenemos la posición del target del fotograma ANTERIOR
+        // --- SEGUIMIENTO CONTINUO ---
+        // Obtener la posición del target del fotograma ANTERIOR
         const oldTargetPosition = new THREE.Vector3();
         oldTargetPosition.copy(camcontrols.target);
 
-        // Calculamos el 'delta' (cuánto se movió el planeta)
+        // Calcular cuánto se ha movido el target
         const delta = new THREE.Vector3();
         delta.subVectors(newTargetPosition, oldTargetPosition);
 
-        // ¡Movemos la cámara esa misma cantidad!
+        // Mover la cámara en la misma dirección
         camera.position.add(delta);
-
-        // Y actualizamos el 'target' de los controles a la nueva posición
         camcontrols.target.copy(newTargetPosition);
       }
     }
-
-    // Actualizamos los controles (esto aplica el zoom y la órbita del ratón)
     camcontrols.update();
   } else if (viewMode === "free") {
-    // Lógica de Movimiento Libre (WASD) - SIN CAMBIOS
+    // Lógica de Movimiento Libre (WASD)
     const delta = 0.007;
     velocity.x = 0;
     velocity.y = 0;
@@ -809,18 +682,15 @@ function animationLoop() {
     camera.translateZ(velocity.z);
   }
 
-  // 2. LÓGICA DE ANIMACIÓN DEL SISTEMA SOLAR
-  // Rotación de los planetas texturizados (Tierra, Nubes, y todos los que se añadan a 'objetos')
+  // --- LÓGICA DE ANIMACIÓN DEL SISTEMA SOLAR (MOVIMIENTOS ORBITALES) ---
   for (let object of objetos) {
-    object.rotation.y += 0.003; // Rotación propia
+    object.rotation.y += 0.003;
   }
 
-  // Rotación del sol sobre sí mismo
   if (estrella) {
     estrella.rotation.y += 0.001;
   }
 
-  // Movimiento orbital de los Planetas (NO cambia, se mueven en XZ relativo a su pivote inclinado)
   for (let object of Planetas) {
     object.position.x =
       Math.cos(timestamp * object.userData.speed) *
@@ -832,7 +702,6 @@ function animationLoop() {
       object.userData.dist;
   }
 
-  // Movimiento orbital de las Lunas (NO cambia, se mueven en XZ relativo a su pivote inclinado)
   for (let object of Lunas) {
     object.position.x =
       Math.cos(timestamp * object.userData.speed) * object.userData.dist;

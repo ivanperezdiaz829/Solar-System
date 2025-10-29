@@ -27,7 +27,7 @@ function init() {
   info.style.backgroundColor = "transparent";
   info.style.zIndex = "1";
   info.style.fontFamily = "Monospace";
-  info.innerHTML = "three.js - Sistema Solar (Órbitas y Planetas grandes)";
+  info.innerHTML = "Iván Pérez Díaz - Sistema Solar (Modelo simplificado)";
   document.body.appendChild(info);
 
   //Defino cámara
