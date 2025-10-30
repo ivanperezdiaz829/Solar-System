@@ -1,0 +1,10 @@
+# Dependencias de Node
+node_modules/
+
+# Archivos de caché y build de Parcel
+.parcel-cache/
+dist/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
