@@ -53,10 +53,84 @@ const TEXTURAS_EXTRAS = {
 };
 
 // Fondo
-const MILKYWAY_BACKGROUND = loader.load("./Textures/space2.jpg");
+// const MILKYWAY_BACKGROUND = loader.load("./Textures/space2.jpg"); // <-- ELIMINADO
 
 // Variable para almacenar referencias a los planetas por nombre
 const planetMeshes = {};
+
+// --- (NUEVAS FUNCIONES PARA ESTRELLAS) ---
+
+/**
+ * Crea una textura radial difuminada para usarla en las partículas de estrellas.
+ * @returns {THREE.CanvasTexture}
+ */
+function createStarTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext("2d");
+
+  const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gradient.addColorStop(0, "rgba(255,255,255,1)");
+  gradient.addColorStop(0.2, "rgba(255,255,255,0.8)");
+  gradient.addColorStop(0.5, "rgba(255,255,255,0.2)");
+  gradient.addColorStop(1, "rgba(255,255,255,0)");
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 64, 64);
+
+  return new THREE.CanvasTexture(canvas);
+}
+
+/**
+ * Genera una esfera de partículas (estrellas)
+ * @param {number} radius - El radio de la esfera de estrellas.
+ * @param {number} count - El número de estrellas a generar.
+ * @param {THREE.Texture} texture - La textura a aplicar a cada partícula.
+ */
+function createStars(radius, count, texture) {
+  const vertices = [];
+  const vector = new THREE.Vector3(); // Re-usar vector para eficiencia
+
+  for (let i = 0; i < count; i++) {
+    // Generamos un punto aleatorio en un cubo de -1 a 1
+    vector.set(
+      THREE.MathUtils.randFloatSpread(2), // -1 a 1
+      THREE.MathUtils.randFloatSpread(2), // -1 a 1
+      THREE.MathUtils.randFloatSpread(2) // -1 a 1
+    );
+
+    // Lo normalizamos (convertimos en un vector de longitud 1)
+    // y lo multiplicamos por el radio.
+    // Esto distribuye los puntos uniformemente sobre una esfera.
+    vector.normalize();
+    vector.multiplyScalar(radius);
+
+    vertices.push(vector.x, vector.y, vector.z);
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(vertices, 3)
+  );
+
+  const material = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 30, // Ajusta este tamaño según veas
+    sizeAttenuation: true, // Las estrellas lejanas se ven más pequeñas
+    map: texture,
+    blending: THREE.AdditiveBlending, // <-- Efecto brillante
+    depthWrite: false, // Evita problemas de renderizado de transparencia
+    transparent: true,
+    opacity: 0.85, // Ligera transparencia
+  });
+
+  const stars = new THREE.Points(geometry, material);
+  scene.add(stars);
+}
+
+// --- (FIN NUEVAS FUNCIONES PARA ESTRELLAS) ---
 
 init();
 setupFreeControl();
@@ -231,24 +305,28 @@ function init() {
   document.body.appendChild(info);
 
   scene = new THREE.Scene();
-  const skyGeometry = new THREE.SphereGeometry(48000, 64, 64);
-  const skyMaterial = new THREE.MeshBasicMaterial({
-    map: MILKYWAY_BACKGROUND,
-    side: THREE.BackSide, // Para que la textura se vea por dentro
-    color: 0x505050,
-  });
-  const skysphere = new THREE.Mesh(skyGeometry, skyMaterial);
-  scene.add(skysphere);
+
+  // --- FONDO ANTIGUO ELIMINADO ---
+  // const skyGeometry = new THREE.SphereGeometry(48000, 64, 64);
+  // const skyMaterial = new THREE.MeshBasicMaterial({
+  //     map: MILKYWAY_BACKGROUND,
+  //     side: THREE.BackSide, // Para que la textura se vea por dentro
+  //     color: 0x505050,
+  // });
+  // const skysphere = new THREE.Mesh(skyGeometry, skyMaterial);
+  // scene.add(skysphere);
+  // --- FIN FONDO ANTIGUO ---
 
   camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
     0.1,
-    60000
+    60000 // Asegúrate de que el 'far' plane sea mayor que el radio de las estrellas
   );
   camera.position.set(0, 50, 200);
 
   renderer = new THREE.WebGLRenderer();
+  renderer.setClearColor(0x000000); // <-- AÑADIDO: Fondo negro
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -258,14 +336,22 @@ function init() {
   camcontrols.enableDamping = true;
 
   // Luz ambiental
-  const Lamb = new THREE.AmbientLight(0xffffff, 0.02);
+  const Lamb = new THREE.AmbientLight(0xffffff, 0.01);
   scene.add(Lamb);
 
   // Intensidad de la luz del sol
-  const Lpoint = new THREE.PointLight(0xffffff, 20000.0, 35000);
+  const Lpoint = new THREE.PointLight(0xfee3bf, 35000.0, 35000);
   Lpoint.position.set(0, 0, 0); // En el centro (sol)
   Lpoint.castShadow = true;
   scene.add(Lpoint);
+
+  // --- AÑADIDO: CREAR FONDO DE ESTRELLAS ---
+  // Usamos un radio grande (p.ej., 45000) y un número alto de estrellas (p.ej., 15000)
+  const starTexture = createStarTexture();
+  createStars(3000, 4000, starTexture);
+  createStars(4000, 7000, starTexture);
+  createStars(5000, 11000, starTexture);
+  // --- FIN FONDO DE ESTRELLAS ---
 
   const degToRad = (degrees) => degrees * (Math.PI / 180);
 
@@ -391,7 +477,7 @@ function init() {
       CLOUD_ALPHA,
       false
     );
-    Luna(tierra_mesh, 0.12, 1.5, 4.0, 0xffffff, degToRad(10.0), "Luna");
+    Luna(tierra_mesh, 0.12, 1.5, 0.2, 0xffffff, degToRad(10.0), "Luna");
   }
 
   // --- AÑADIR LUNAS A PLANETAS
