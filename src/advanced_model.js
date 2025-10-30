@@ -463,11 +463,35 @@ function init() {
 }
 
 // --- FUNCIÓN PARA CREAR LOS PLANETAS CON TEXTURAS ---
-function CrearPlanetaTexturizado(radio, dist, vel, f1, f2, incl, name, texture, texbump = undefined, texspec = undefined) {
-
+function CrearPlanetaTexturizado(
+  radio,
+  dist,
+  vel,
+  f1,
+  f2,
+  incl,
+  name,
+  texture,
+  texbump = undefined,
+  texspec = undefined
+) {
   let pivoteOrbita = PivoteOrbital(dist, vel, f1, f2, incl);
 
-  let planeta_mesh = PlanetaTexturizado(pivoteOrbita, 0, 0, 0, radio ,40, 40, 0xffffff, texture, texbump, texspec, undefined, true);
+  let planeta_mesh = PlanetaTexturizado(
+    pivoteOrbita,
+    0,
+    0,
+    0,
+    radio,
+    40,
+    40,
+    0xffffff,
+    texture,
+    texbump,
+    texspec,
+    undefined,
+    true
+  );
 
   planeta_mesh.userData.dist = dist;
   planeta_mesh.userData.speed = vel;
@@ -517,7 +541,21 @@ function Estrella(rad, col, name, texture = undefined) {
   scene.add(estrella);
 }
 
-function PlanetaTexturizado(padre, px, py, pz, radio, nx, ny, col, texture = undefined, texbump = undefined, texspec = undefined, texalpha = undefined, sombra = false) {
+function PlanetaTexturizado(
+  padre,
+  px,
+  py,
+  pz,
+  radio,
+  nx,
+  ny,
+  col,
+  texture = undefined,
+  texbump = undefined,
+  texspec = undefined,
+  texalpha = undefined,
+  sombra = false
+) {
   let geometry = new THREE.SphereGeometry(radio, nx, ny);
 
   let material = new THREE.MeshPhongMaterial({
