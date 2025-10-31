@@ -91,7 +91,7 @@ Para generar el fondo con estrellas se ha creado un método el cuál genera una 
 
 Un dato interesante es que si en cualquier modo se aleja la cámara suficiente se pueden apreciar las esferas de partículas que dan la sensación de un espacio estrellado.
 
-<h4 style="text-weight: bold; text-decoration: underline">Vista de los campos de estrellas:</h4>
+<h4 style="text-weight: bold; text-decoration: underline">Vistazo al campo de estrellas:</h4>
 
 <img src="./Images/estrellas.png">
 
@@ -107,7 +107,7 @@ Tanto los planetas como el sol y las lunas en la vida real, aparte de orbitar so
 
 ## Vídeo de uso
 
-Se procede a mostrar un vídeo con explicaciones del uso del modelo, controles y una vista general del proyecto en ejecución.
+Se procede a mostrar un vídeo con explicaciones del uso del modelo, controles y una vista general del proyecto en ejecución (Pulsar la imagen para acceder al video en **YouTube**).
 
 <h4 style="text-weight: bold; text-decoration: underline">Vistazo al Sistema Solar:</h4>
 
@@ -115,7 +115,7 @@ Se procede a mostrar un vídeo con explicaciones del uso del modelo, controles y
 
 ## Fuentes y Documentación
 
-- **Internet:** Se ha utilizado internet para obtener las imágenes de las texturas así como buscar información sobre las lunas de los planetas (nombre y cantidad de cada planeta). Por otro lado, se ha utilizado YouTube para subir el vídeo explicativo del uso del sistema solar.
+- **Internet:** Se ha utilizado internet para obtener las imágenes de las texturas así como buscar información sobre las lunas de los planetas (nombre y cantidad de cada planeta). Por otro lado, se ha utilizado **YouTube** para subir el vídeo explicativo del uso del sistema solar.
 
 - **Inteligencia Artificial Generativa (ChatGPT, Gemini):** Se ha utilizado la IA para generar varios planetas y lunas a partir de los ya creados (se pasa el método y los planetas a crear para ahorrar tiempo). Por otro lado, se ha hecho uso de la IA para documentarse acerca de las funciones que existen dentro de **three.js**.
 
