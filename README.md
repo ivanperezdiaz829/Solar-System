@@ -12,6 +12,7 @@
 - [Fondo y Estrellas](#fondo-y-estrellas)
 - [Iluminación y Órbitas](#iluminación-y-órbitas)
 - [Fuentes y Documentación](#fuentes-y-documentación)
+- [Vídeo de uso](#vídeo-de-uso)
 
 ## Introducción
 
@@ -104,18 +105,27 @@ Las lunas se crean de manera diferente a los planetas, se crean mediante un mét
 
 Tanto los planetas como el sol y las lunas en la vida real, aparte de orbitar sobre el cuerpo celeste en el que están asociados giran sobre su propio eje, para conseguir dicho efecto se ha creado un método llamado *PivoteOrbital* que controla la velocidad e inclinación del movimiento.
 
+## Vídeo de uso
+
+Se procede a mostrar un vídeo con explicaciones del uso del modelo, controles y una vista general del proyecto en ejecución.
+
+<h4 style="text-weight: bold; text-decoration: underline">Vistazo al Sistema Solar:</h4>
+
+<iframe src="https://www.youtube.com/watch?v=VfV27RZLzvE"></iframe>
+
 ## Fuentes y Documentación
 
-- **Internet:** Se ha utilizado internet para obtener las imágenes de las texturas así como buscar información sobre las lunas de los planetas (nombre y cantidad de cada planeta).
+- **Internet:** Se ha utilizado internet para obtener las imágenes de las texturas así como buscar información sobre las lunas de los planetas (nombre y cantidad de cada planeta). Por otro lado, se ha utilizado YouTube para subir el vídeo explicativo del uso del sistema solar.
 
 - **Inteligencia Artificial Generativa (ChatGPT, Gemini):** Se ha utilizado la IA para generar varios planetas y lunas a partir de los ya creados (se pasa el método y los planetas a crear para ahorrar tiempo). Por otro lado, se ha hecho uso de la IA para documentarse acerca de las funciones que existen dentro de **three.js**.
 
 - **Enlaces:**
     - https://es.wikipedia.org/wiki/Anexo:Satélites_naturales_del_sistema_solar
     - https://chatgpt.com/
+    - https://youtube.com/
     - https://gemini.google.com
     - https://spaceplace.nasa.gov/how-many-moons/sp/
 
 
-<h4 style="text-weight: bold; text-desing: underline">--- Iván Pérez Díaz ---</h4>
+<h4 style="text-weight: bold">--- Iván Pérez Díaz ---</h4>
 
