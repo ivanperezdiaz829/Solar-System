@@ -52,18 +52,9 @@ const TEXTURAS_EXTRAS = {
   anillosSaturno: loader.load("./Textures/Saturn_Rings.png"),
 };
 
-// Fondo
-// const MILKYWAY_BACKGROUND = loader.load("./Textures/space2.jpg"); // <-- ELIMINADO
-
 // Variable para almacenar referencias a los planetas por nombre
 const planetMeshes = {};
 
-// --- (NUEVAS FUNCIONES PARA ESTRELLAS) ---
-
-/**
- * Crea una textura radial difuminada para usarla en las partículas de estrellas.
- * @returns {THREE.CanvasTexture}
- */
 function createStarTexture() {
   const canvas = document.createElement("canvas");
   canvas.width = 64;
@@ -82,27 +73,18 @@ function createStarTexture() {
   return new THREE.CanvasTexture(canvas);
 }
 
-/**
- * Genera una esfera de partículas (estrellas)
- * @param {number} radius - El radio de la esfera de estrellas.
- * @param {number} count - El número de estrellas a generar.
- * @param {THREE.Texture} texture - La textura a aplicar a cada partícula.
- */
 function createStars(radius, count, texture) {
   const vertices = [];
   const vector = new THREE.Vector3(); // Re-usar vector para eficiencia
 
   for (let i = 0; i < count; i++) {
-    // Generamos un punto aleatorio en un cubo de -1 a 1
+    // Generar un punto aleatorio en la superficie de una esfera
     vector.set(
       THREE.MathUtils.randFloatSpread(2), // -1 a 1
       THREE.MathUtils.randFloatSpread(2), // -1 a 1
       THREE.MathUtils.randFloatSpread(2) // -1 a 1
     );
 
-    // Lo normalizamos (convertimos en un vector de longitud 1)
-    // y lo multiplicamos por el radio.
-    // Esto distribuye los puntos uniformemente sobre una esfera.
     vector.normalize();
     vector.multiplyScalar(radius);
 
@@ -117,10 +99,10 @@ function createStars(radius, count, texture) {
 
   const material = new THREE.PointsMaterial({
     color: 0xffffff,
-    size: 30, // Ajusta este tamaño según veas
+    size: 30,
     sizeAttenuation: true, // Las estrellas lejanas se ven más pequeñas
     map: texture,
-    blending: THREE.AdditiveBlending, // <-- Efecto brillante
+    blending: THREE.AdditiveBlending,
     depthWrite: false, // Evita problemas de renderizado de transparencia
     transparent: true,
     opacity: 0.85, // Ligera transparencia
@@ -129,8 +111,6 @@ function createStars(radius, count, texture) {
   const stars = new THREE.Points(geometry, material);
   scene.add(stars);
 }
-
-// --- (FIN NUEVAS FUNCIONES PARA ESTRELLAS) ---
 
 init();
 setupFreeControl();
@@ -306,27 +286,16 @@ function init() {
 
   scene = new THREE.Scene();
 
-  // --- FONDO ANTIGUO ELIMINADO ---
-  // const skyGeometry = new THREE.SphereGeometry(48000, 64, 64);
-  // const skyMaterial = new THREE.MeshBasicMaterial({
-  //     map: MILKYWAY_BACKGROUND,
-  //     side: THREE.BackSide, // Para que la textura se vea por dentro
-  //     color: 0x505050,
-  // });
-  // const skysphere = new THREE.Mesh(skyGeometry, skyMaterial);
-  // scene.add(skysphere);
-  // --- FIN FONDO ANTIGUO ---
-
   camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
     0.1,
-    60000 // Asegúrate de que el 'far' plane sea mayor que el radio de las estrellas
+    60000
   );
   camera.position.set(0, 50, 200);
 
   renderer = new THREE.WebGLRenderer();
-  renderer.setClearColor(0x000000); // <-- AÑADIDO: Fondo negro
+  renderer.setClearColor(0x000000);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -345,13 +314,11 @@ function init() {
   Lpoint.castShadow = true;
   scene.add(Lpoint);
 
-  // --- AÑADIDO: CREAR FONDO DE ESTRELLAS ---
-  // Usamos un radio grande (p.ej., 45000) y un número alto de estrellas (p.ej., 15000)
+  // --- FONDO DE ESTRELLAS ---
   const starTexture = createStarTexture();
   createStars(3000, 4000, starTexture);
   createStars(4000, 7000, starTexture);
   createStars(5000, 11000, starTexture);
-  // --- FIN FONDO DE ESTRELLAS ---
 
   const degToRad = (degrees) => degrees * (Math.PI / 180);
 
@@ -480,7 +447,7 @@ function init() {
     Luna(tierra_mesh, 0.12, 1.5, 0.2, 0xffffff, degToRad(10.0), "Luna");
   }
 
-  // --- AÑADIR LUNAS A PLANETAS
+  // --- AÑADIR LUNAS A PLANETAS ---
   let marte_mesh = planetMeshes["Marte"];
   if (marte_mesh) {
     Luna(marte_mesh, 0.1, 0.8, 3.0, 0xaaaaaa, degToRad(10), "Fobos");
@@ -541,11 +508,11 @@ function init() {
   }
 
   if (followableObjects.length > 0) {
-    followTargetIndex = 0; // El seguimiento empezará por el Sol (índice 0)
+    followTargetIndex = 0;
   }
 
   t0 = Date.now();
-  updateInfoText(); // Llamada inicial para mostrar el estado.
+  updateInfoText();
 }
 
 // --- FUNCIÓN PARA CREAR LOS PLANETAS CON TEXTURAS ---
