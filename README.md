@@ -111,7 +111,7 @@ Se procede a mostrar un vídeo con explicaciones del uso del modelo, controles y
 
 <h4 style="text-weight: bold; text-decoration: underline">Vistazo al Sistema Solar:</h4>
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/VfV27RZLzvE?si=dHiPCzjPMz2mBEjX" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[![Ver en YouTube](https://img.youtube.com/vi/VfV27RZLzvE/0.jpg)](https://www.youtube.com/watch?v=VfV27RZLzvE)
 
 ## Fuentes y Documentación
 
