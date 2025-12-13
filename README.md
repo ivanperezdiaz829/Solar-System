@@ -1,5 +1,7 @@
 <h1 style="text-weight: bold;">SOLAR SYSTEM</h1>
 
+Enlace a la demo (CodeSandbox): https://m273p6.csb.app/
+
 <img src="Images/general_system_image.png">
 
 ## Índice
